@@ -32,9 +32,13 @@ abstract class AbstractResponse extends BaseAbstractResponse
     /**
      * @return string|null
      */
-    public function getTransactionReference(): ?string
+    public function getBindingId(): ?string
     {
-        return $this->getPxNumber();
+        if (isset($this->data['binding'])) {
+            return $this->data['binding'];
+        }
+
+        return null;
     }
 
     /**
@@ -51,6 +55,14 @@ abstract class AbstractResponse extends BaseAbstractResponse
         }
 
         return null;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTransactionReference(): ?string
+    {
+        return $this->getPxNumber();
     }
 
     /**

@@ -42,7 +42,7 @@ class ConverseGatewayTest extends GatewayTestCase
                 'language'     => 'en',
                 'currency'     => 'EUR',
                 'orderNumber'  => '000866',
-                'bindingID'    => 'some-binding-id',
+                'clientId'    => 'some-client-id',
                 'description'  => 'some-description',
         ])->send();
 
@@ -68,7 +68,7 @@ class ConverseGatewayTest extends GatewayTestCase
     {
         $response = $this->gateway->payWebX([
                 'transactionId' => 'some-transaction-id',
-                "bindingId"     => 'some-binding-id',
+                "clientId"     => 'some-client-id',
                 "cardId"        => 'some-card-id',
         ])->send();
 
@@ -107,22 +107,6 @@ class ConverseGatewayTest extends GatewayTestCase
     /**
      * @return void
      */
-    public function testRegisterCard(): void
-    {
-        $response = $this->gateway->registerCard([
-                'transactionId' => 'some-transaction-id',
-                'amount'       => '10',
-                'returnUrl'    => 'http:\/\/cportal.im\/hy\/test?back=1&order_number=1',
-                'language'     => 'en',
-                'currency'     => 'EUR',
-                'orderNumber'  => '000866',
-                'bindingID'    => 'some-binding-id',
-                'description'  => 'some-description',
-        ])->send();
-
-        $this->assertInstanceOf(RegisterCardResponse::class, $response);
-    }
-
     public function testReverse(): void
     {
         $response = $this->gateway->reverse([

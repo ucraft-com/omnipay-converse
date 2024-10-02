@@ -40,10 +40,11 @@ class FetchTransactionRequest extends AbstractRequest
         $data = [];
 
         if ($response->getStatusCode() === Response::HTTP_OK) {
-            $responseData = trim($response->getBody()->getContents(), '"');
+            $responseBody = $response->getBody()->getContents();
+            $responseData = json_decode($responseBody, true);
 
-            if (!empty($responseData)) {
-                $data = json_decode($responseData, true);
+            if (json_last_error() === JSON_ERROR_NONE && $responseData !== null) {
+                $data = $responseData;
             }
         }
 

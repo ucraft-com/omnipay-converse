@@ -14,7 +14,7 @@ class PurchaseRequest extends AbstractRequest
      */
     protected function getEndpoint(): string
     {
-        return self::API_URL.'/ecommerce.php?c=register';
+        return self::API_URL.'/HostX/Register';
     }
 
     /**
@@ -36,19 +36,76 @@ class PurchaseRequest extends AbstractRequest
     }
 
     /**
-     * @return array
+     * @param string $value
+     *
+     * @return \Omnipay\Converse\Message\PurchaseRequest
+     */
+    public function setLanguage(string $value): PurchaseRequest
+    {
+        return $this->setParameter('language', $value);
+    }
+
+    /**
+     * @return string
+     */
+    public function getLanguage(): string
+    {
+        return $this->getParameter('language');
+    }
+
+    /**
+     * @param bool $value
+     *
+     * @return \Omnipay\Converse\Message\PurchaseRequest
+     */
+    public function setSaveCard(bool $value): PurchaseRequest
+    {
+        return $this->setParameter('saveCard', $value);
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getSaveCard(): ?bool
+    {
+        return (bool)$this->getParameter('saveCard');
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return \Omnipay\Converse\Message\PurchaseRequest
+     */
+    public function setClientId(string $value): PurchaseRequest
+    {
+        return $this->setParameter('clientId', $value);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getClientId(): ?string
+    {
+        return $this->getParameter('clientId');
+    }
+
+    /**
      * @throws \Omnipay\Common\Exception\InvalidRequestException
      */
     public function getData(): array
     {
-        $this->validate('amount', 'returnUrl', 'currency', 'orderNumber');
+        $this->validate('amount', 'language', 'returnUrl', 'currency', 'orderNumber');
 
-        return [
+        return array_filter([
             'amount'      => $this->getAmount(),
+            'lang'        => $this->getLanguage(),
             'returnUrl'   => $this->getReturnUrl(),
             'currency'    => $this->getCurrency(),
             'orderNumber' => $this->getOrderNumber(),
-        ];
+            'description' => $this->getDescription(),
+            'client_id'   => $this->getClientId(),
+            'save_card'   => $this->getSaveCard(),
+        ]);
     }
 
     /**
@@ -61,10 +118,11 @@ class PurchaseRequest extends AbstractRequest
         $data = [];
 
         if ($response->getStatusCode() === Response::HTTP_OK) {
-            $responseData = trim($response->getBody()->getContents(), '"');
+            $responseBody = $response->getBody()->getContents();
+            $responseData = json_decode($responseBody, true);
 
-            if (!empty($responseData)) {
-                $data = json_decode($responseData, true);
+            if (json_last_error() === JSON_ERROR_NONE && $responseData !== null) {
+                $data = $responseData;
             }
         }
 

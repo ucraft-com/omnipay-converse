@@ -16,7 +16,7 @@ class PayWebXRequestTest extends TestCase
         $this->request = new PayWebXRequest($this->getHttpClient(), $this->getHttpRequest());
         $this->request->initialize([
             'transactionId' => 'some-transaction-id',
-            "bindingId"     => 'some-binding-id',
+            "clientId"      => 'some-client-id',
             "cardId"        => 'some-card-id',
         ]);
     }
@@ -31,7 +31,7 @@ class PayWebXRequestTest extends TestCase
 
         $this->assertIsArray($data);
         $this->assertEquals('some-transaction-id', $data['pxNumber']);
-        $this->assertEquals('some-binding-id', $data['client_id']);
+        $this->assertEquals('some-client-id', $data['client_id']);
         $this->assertEquals('some-card-id', $data['cardId']);
     }
 }

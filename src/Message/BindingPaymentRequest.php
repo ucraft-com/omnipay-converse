@@ -40,24 +40,6 @@ class BindingPaymentRequest extends AbstractRequest
      *
      * @return \Omnipay\Converse\Message\BindingPaymentRequest
      */
-    public function setBindingId(string $value): BindingPaymentRequest
-    {
-        return $this->setParameter('bindingId', $value);
-    }
-
-    /**
-     * @return string
-     */
-    public function getBindingId(): string
-    {
-        return $this->getParameter('bindingId');
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return \Omnipay\Converse\Message\BindingPaymentRequest
-     */
     public function setOrderNumber(string $value): BindingPaymentRequest
     {
         return $this->setParameter('orderNumber', $value);
@@ -72,23 +54,78 @@ class BindingPaymentRequest extends AbstractRequest
     }
 
     /**
+     * @param $value
+     *
+     * @return \Omnipay\Converse\Message\BindingPaymentRequest
+     */
+    public function setLanguage($value): BindingPaymentRequest
+    {
+        return $this->setParameter('language', $value);
+    }
+
+    /**
+     * @return string
+     */
+    public function getLanguage(): string
+    {
+        return $this->getParameter('language');
+    }
+
+    /**
+     * @param bool $value
+     *
+     * @return \Omnipay\Converse\Message\BindingPaymentRequest
+     */
+    public function setSaveCard(bool $value): BindingPaymentRequest
+    {
+        return $this->setParameter('saveCard', $value);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getSaveCard(): bool
+    {
+        return (bool)$this->getParameter('saveCard');
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return \Omnipay\Converse\Message\BindingPaymentRequest
+     */
+    public function setClientId(string $value): BindingPaymentRequest
+    {
+        return $this->setParameter('clientId', $value);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getClientId(): ?string
+    {
+        return $this->getParameter('clientId');
+    }
+
+    /**
      * @return array
      * @throws \Omnipay\Common\Exception\InvalidRequestException
      */
     public function getData(): array
     {
-        $this->validate('amount', 'currency', 'returnUrl', 'bindingId', 'orderNumber');
+        $this->validate('amount', 'language', 'currency', 'returnUrl', 'clientId', 'orderNumber');
 
-        return [
+        return array_filter([
             'card_binding' => $this->getCardBinding(),
-            'amount'       => $this->getAmount(),
-            'returnUrl'    => $this->getReturnUrl(),
-            'currency'     => $this->getCurrency(),
-            'orderNumber'  => $this->getOrderNumber(),
-            'client_id'    => $this->getBindingId(),
-            'description'  => $this->getDescription(),
-            'save_card'    => true,
-        ];
+            'amount'      => $this->getAmount(),
+            'lang'        => $this->getLanguage(),
+            'returnUrl'   => $this->getReturnUrl(),
+            'currency'    => $this->getCurrency(),
+            'orderNumber' => $this->getOrderNumber(),
+            'client_id'   => $this->getClientId(),
+            'description' => $this->getDescription(),
+            'save_card'   => $this->getSaveCard(),
+        ]);
     }
 
     /**
@@ -101,10 +138,11 @@ class BindingPaymentRequest extends AbstractRequest
         $data = [];
 
         if ($response->getStatusCode() === Response::HTTP_CREATED) {
-            $responseData = trim($response->getBody()->getContents(), '"');
+            $responseBody = $response->getBody()->getContents();
+            $responseData = json_decode($responseBody, true);
 
-            if (!empty($responseData)) {
-                $data = json_decode($responseData, true);
+            if (json_last_error() === JSON_ERROR_NONE && $responseData !== null) {
+                $data = $responseData;
             }
         }
 

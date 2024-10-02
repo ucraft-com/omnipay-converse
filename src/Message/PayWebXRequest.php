@@ -22,17 +22,17 @@ class PayWebXRequest extends AbstractRequest
      *
      * @return \Omnipay\Converse\Message\PayWebXRequest
      */
-    public function setBindingId(string $value): PayWebXRequest
+    public function setClientId(string $value): PayWebXRequest
     {
-        return $this->setParameter('bindingId', $value);
+        return $this->setParameter('clientId', $value);
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getBindingId(): string
+    public function getClientId(): ?string
     {
-        return $this->getParameter('bindingId');
+        return $this->getParameter('clientId');
     }
 
     /**
@@ -55,19 +55,38 @@ class PayWebXRequest extends AbstractRequest
     }
 
     /**
+     *
+     * @param bool $value
+     *
+     * @return $this
+     */
+    public function setIsBind(bool $value): PayWebXRequest
+    {
+        return $this->setParameter('IsBind', $value);
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getIsBind(): ?bool
+    {
+        return $this->getParameter('IsBind');
+    }
+
+    /**
      * @return array
      * @throws \Omnipay\Common\Exception\InvalidRequestException
      */
     public function getData(): array
     {
-        $this->validate('transactionId', 'bindingId', 'cardId');
+        $this->validate('transactionId', 'clientId', 'cardId');
 
-        return [
+        return array_filter([
             'pxNumber'  => $this->getTransactionId(),
-            'client_id' => $this->getBindingId(),
+            'client_id' => $this->getClientId(),
             'cardId'    => $this->getCardId(),
-            'IsBind'    => true,
-        ];
+            'IsBind'    => $this->getIsBind(),
+        ]);
     }
 
     /**
@@ -80,10 +99,11 @@ class PayWebXRequest extends AbstractRequest
         $data = [];
 
         if ($response->getStatusCode() === Response::HTTP_OK) {
-            $responseData = trim($response->getBody()->getContents(), '"');
+            $responseBody = $response->getBody()->getContents();
+            $responseData = json_decode($responseBody, true);
 
-            if (!empty($responseData)) {
-                $data = json_decode($responseData, true);
+            if (json_last_error() === JSON_ERROR_NONE && $responseData !== null) {
+                $data = $responseData;
             }
         }
 
